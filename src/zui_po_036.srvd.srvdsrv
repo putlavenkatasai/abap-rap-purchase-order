@@ -1,0 +1,5 @@
+@EndUserText.label: 'PO Service'
+define service ZUI_PO_036 {
+  expose ZC_PO_036     as PO;
+  expose ZC_POITEM_036 as Item;
+}

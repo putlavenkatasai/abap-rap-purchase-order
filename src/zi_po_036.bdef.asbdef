@@ -1,0 +1,100 @@
+managed implementation in class zbp_i_po_036 unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZI_PO_036 alias PO
+persistent table zpo_hdr_036
+draft table zpo_hdr_d_036
+lock master total etag LastChangedAt
+authorization master ( instance )
+etag master LocalLastChangedAt
+{
+  create;
+  update;
+  delete;
+
+  association _Item { create; with draft; }
+
+  field ( numbering : managed, readonly ) PoUuid;
+  field ( readonly ) PoNumber, PoStatus, TotalAmount;
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+
+  draft determine action Prepare
+  {
+    validation validateSupplier;
+    validation Item~validateQuantity;
+    validation Item~validatePrice;
+  }
+
+  determination setInitialStatus on modify { create; }
+  determination setPoNumber on save { create; }
+
+  validation validateSupplier on save { create; field SupplierId; }
+
+  action ( features : instance ) submitPO result [1] $self;
+  action ( features : instance ) approvePO result [1] $self;
+  action ( features : instance ) rejectPO result [1] $self;
+
+  mapping for zpo_hdr_036
+  {
+    PoUuid             = po_uuid;
+    PoNumber           = po_number;
+    SupplierId         = supplier_id;
+    SupplierName       = supplier_name;
+    OrderDate          = order_date;
+    CurrencyCode       = currency_code;
+    TotalAmount        = total_amount;
+    PoStatus           = po_status;
+    LocalCreatedBy     = local_created_by;
+    LocalCreatedAt     = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt      = last_changed_at;
+  }
+}
+
+define behavior for ZI_POITEM_036 alias Item
+persistent table zpo_item_036
+draft table zpo_item_d_036
+lock dependent by _PO
+authorization dependent by _PO
+etag master LocalLastChangedAt
+{
+  update;
+  delete;
+
+  field ( numbering : managed, readonly ) ItemUuid;
+  field ( readonly ) PoUuid, ItemAmount;
+
+  association _PO { with draft; }
+
+  determination calculateItemAmount on modify { create; field Quantity, UnitPrice; }
+  determination calculateTotal on modify { create; field ItemAmount; }
+
+  validation validateQuantity on save { create; field Quantity; }
+  validation validatePrice on save { create; field UnitPrice; }
+
+  side effects
+  {
+    field Quantity  affects field ItemAmount, entity _PO;
+    field UnitPrice affects field ItemAmount, entity _PO;
+  }
+
+  mapping for zpo_item_036
+  {
+    ItemUuid           = item_uuid;
+    PoUuid             = po_uuid;
+    ItemNo             = item_no;
+    MaterialDesc       = material_desc;
+    Quantity           = quantity;
+    Unit               = unit;
+    CurrencyCode       = currency_code;
+    UnitPrice          = unit_price;
+    ItemAmount         = item_amount;
+    LocalLastChangedAt = local_last_changed_at;
+  }
+}

@@ -1,0 +1,30 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZC_PO_036 alias PO
+{
+  use create;
+  use update;
+  use delete;
+
+  use action Edit;
+  use action Activate;
+  use action Discard;
+  use action Resume;
+  use action Prepare;
+
+  use action submitPO;
+  use action approvePO;
+  use action rejectPO;
+
+  use association _Item { create; with draft; }
+}
+
+define behavior for ZC_POITEM_036 alias Item
+{
+  use update;
+  use delete;
+
+  use association _PO { with draft; }
+}
