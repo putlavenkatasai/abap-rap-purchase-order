@@ -23,11 +23,9 @@ A Fiori Elements app built with the ABAP RESTful Application Programming Model (
 | Service | `ZUI_PO_036` (definition), OData V4 UI binding |
 
 ## Screenshots
-![PO List](images/list.png)
+(images/project .png)
 
-![PO Object Page](images/object-page.png)
 
-![Items](images/items.png)
 
 ## How to use
 1. Import this repository into your BTP ABAP Environment with abapGit (ADT).
